@@ -5,6 +5,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.memory import MemoryStorage
 from emoji import emojize
 import keyboards as kb
 
@@ -16,7 +17,7 @@ class NeedWater(StatesGroup):
 
 
 bot = Bot(token="7357139162:AAE2okZepxlmPHPp8J_0Uo4beWtTJD9PvUQ")
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
