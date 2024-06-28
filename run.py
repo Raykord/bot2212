@@ -16,7 +16,7 @@ class NeedWater(StatesGroup):
     addres = State()
 
 
-bot = Bot(token="7357139162:AAE2okZepxlmPHPp8J_0Uo4beWtTJD9PvUQ")
+bot = Bot(token="")
 dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(CommandStart())
