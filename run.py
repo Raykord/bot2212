@@ -4,19 +4,20 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command 
 from aiogram.types import Message
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
+#Обязательный импорт для работы с состояниями
+from aiogram.fsm.context import FSMContext 
 from aiogram.fsm.storage.memory import MemoryStorage
 from emoji import emojize
 import keyboards as kb
 
-
-class NeedWater(StatesGroup):
+#Создаём состояния
+class NeedWater(StatesGroup): 
     liters = State()
     gaz = State()
     addres = State()
 
 
-bot = Bot(token="")
+bot = Bot(token="7357139162:AAE2okZepxlmPHPp8J_0Uo4beWtTJD9PvUQ")
 dp = Dispatcher(storage=MemoryStorage())
 
 @dp.message(CommandStart())
@@ -37,7 +38,7 @@ async def cmd_joke(message: Message):
 
 @dp.message(F.text == 'привет')
 async def hi_anwer(message: Message):
-    await message.answer('Привет')
+    await message.reply(f'Привет {message.from_user.full_name}')
 
 @dp.message(F.text.contains('Капибара'))
 async def founded_kapibara(message: Message):
@@ -58,22 +59,26 @@ async def cmd_roll(message: Message):
     await message.answer(f'Выпало: {result}')
 
 
-
+# Запускаем машину состояний
 @dp.message(Command('water'))
 async def cmd_water(message: Message, state: FSMContext):
     await message.answer('Сколько литров воды?')
+    # Переключаем состояние на liters чтобы при получении сообщения сработал следующий хэндл
     await state.set_state(NeedWater.liters.state)
 
 
-
+# Ловим сообщение
 @dp.message(NeedWater.liters)
 async def cmd_water_liters(message: Message, state: FSMContext):
+    # Обновляем данные
     await state.update_data(liters=message.text)
+    # Отвечаем пользователю открываем клавиатуру
     await message.answer('Нужен газ?', reply_markup=kb.gaz)
+    # Переключаем состояние
     await state.set_state(NeedWater.gaz.state)
 
 
-
+# Ловим сообщение
 @dp.message(NeedWater.gaz)
 async def cmd_water_gaz(message: Message, state: FSMContext):
     if message.text.lower() == 'да':
@@ -81,13 +86,15 @@ async def cmd_water_gaz(message: Message, state: FSMContext):
     else:
         await state.update_data(gaz=False)
     await message.answer('В каком городе?')
+    # Переключаем состояние
     await state.set_state(NeedWater.addres.state)
 
 
-
+# Ловим сообщение
 @dp.message(NeedWater.addres)
 async def cmd_water_address(message: Message, state: FSMContext):
     await state.update_data(addres=message.text)
+    # Поучема сохранённые данные
     data = await state.get_data()
     gaz = ''
     if data['gaz']:
@@ -95,6 +102,7 @@ async def cmd_water_address(message: Message, state: FSMContext):
     else:
         gaz = 'Не нужен'
     await message.answer(f'Спасибо! Доставим вам воду по аддресу {data["addres"]}, {data["gaz"]} и {data["liters"]} литров')
+    # Очищаем состояния чтобы снова работать с ботом как обычно
     await state.clear()
 
 
